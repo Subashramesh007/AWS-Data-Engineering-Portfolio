@@ -1,0 +1,97 @@
+create identical lambda functions-> ProcessPurchase & ProcessRefund- python 3.6 - create new role
+
+handler name - lambda_function.process_purchase
+code:
+import json
+import datetime
+import urllib
+import boto3
+
+
+def process_purchase(message, context):
+    # TODO implement
+
+    print("received messsage from step fn")
+    print(message)
+
+    response = {}
+    response['TransactionType'] = message['TransactionType']
+    response['Timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+    response['Message'] = "Hello from process purchase lambda"
+
+
+    return response
+	
+handler name - lambda_function.process_refund
+code:
+import json
+import datetime
+import urllib
+import boto3
+
+
+def process_refund(message, context):
+    # TODO implement
+
+    print("received messsage from step fn")
+    print(message)
+
+    response = {}
+    response['TransactionType'] = message['TransactionType']
+    response['Timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+    response['Message'] = "Hello from process refund lambda"
+
+
+    return response
+
+
+Create role for step functions: 
+go to iam -> roles -> step functions -> permissions -> default lambda role and tags(leave it as it is) -> StepfunLamRole
+
+Step functions -> create state machine -> TransactionProcessorStatemachine-> paste the below json code and refresh it-> 
+choose an existing IAM Role -> StepfunLamRole -> create state machine
+Note:- '$' is input which we provide
+{
+  "Comment": "A simple AWS Step Functions state machine that automates a call center support session.",
+  "StartAt": "ProcessTransaction",
+  "States": {
+    "ProcessTransaction": {
+        "Type" : "Choice",
+        "Choices": [ 
+          {
+            "Variable": "$.TransactionType",
+            "StringEquals": "PURCHASE",
+            "Next": "ProcessPurchase"
+          },
+          {
+            "Variable": "$.TransactionType",
+            "StringEquals": "REFUND",
+            "Next": "ProcessRefund"
+          }
+      ]
+    },
+     "ProcessRefund": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:016444685310:function:ProcessRefund", 
+      "End": true
+    },
+    "ProcessPurchase": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:016444685310:function:ProcessPurchase",
+      "End": true
+    }
+  }
+}
+
+Start execution -> 
+input1 - 
+{
+        "TransactionType" : "PURCHASE"
+}        
+
+input2 - 
+{
+        "TransactionType" : "REFUND"
+}  
+
+	
