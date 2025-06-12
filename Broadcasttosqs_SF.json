@@ -1,0 +1,35 @@
+SQS -> create queue as 'SQSFromStepfn' -> Default settings -> quick create
+keep the URL in handy
+
+Step function -< create state machine 'StepfnusingSQS' using below code
+create new IAM role -> StepfnSQSIAMRole
+Review role permissions - if we use the sqs word in iam role it will tag the access automatically
+{ 
+   "Comment":"Transaction Processor State Machine Using SQS",
+   "StartAt":"ProcessTransaction",
+   "States":{ 
+      "ProcessTransaction":{ 
+         "Type":"Pass",
+         "Next":"BroadcastToSqs"
+      },
+      "BroadcastToSqs":{ 
+         "Type":"Task",
+         "Resource":"arn:aws:states:::sqs:sendMessage",
+         "Parameters":{ 
+            "QueueUrl":"https://sqs.us-east-1.amazonaws.com/016444685310/SQSFromStepfn",
+            "MessageBody":{ 
+               "TransactionId.$":"$.TransactionId",
+               "Type.$":"$.Type"
+            }
+         },
+         "End":true
+      }
+   }
+}
+
+Input
+---
+{
+  "TransactionId": "abc",
+  "Type": "PURCHASE"
+}
