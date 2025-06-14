@@ -1,0 +1,36 @@
+create sns topic and subscribe it
+
+Step function -< create state machine 'StepfnSNSDemo' using below code
+create new IAM role -> StepfnSNSDemoRole
+
+code:
+{ 
+   "Comment":"Transaction Processor State Machine Using SNS",
+   "StartAt":"ProcessTransaction",
+   "States":{ 
+      "ProcessTransaction":{ 
+         "Type":"Pass",
+         "Next":"BroadcastToSns"
+      },
+      "BroadcastToSns":{ 
+         "Type":"Task",
+         "Resource":"arn:aws:states:::sns:publish",
+         "Parameters":{ 
+            "TopicArn":"arn:aws:sns:us-east-1:016444685310:Helloworld",
+            "Message":{ 
+               "TransactionId.$":"$.TransactionId",
+               "Type.$":"$.Type",
+               "Source": "Step Functions!"
+            }
+         },
+      "End":true
+      }
+   }
+}
+
+Input
+---
+{
+  "TransactionId": "abc",
+  "Type": "PURCHASE"
+}
