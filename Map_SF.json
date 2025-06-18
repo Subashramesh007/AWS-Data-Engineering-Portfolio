@@ -1,0 +1,73 @@
+Create lambda 'REST_Demo'
+
+import boto3
+import json
+import time
+
+def lambda_handler(event, context):
+    return event["transactionId"] + "-" + event['type']
+	
+	
+	
+Create step fn 'Map_SF'
+{
+"StartAt": "Validate-All", 
+"States":{
+    "Validate-All":{
+       "Type":"Map",
+       "InputPath": "$",
+       "ItemsPath":"$.transactions",
+       "MaxConcurrency":0,
+       "Iterator":{
+          "StartAt":"Validate",
+          "States":{
+             "Validate":{
+                 "Type":"Task",
+                 "Resource":"arn:aws:lambda:us-east-1:016444685310:function:REST_Demo",
+                 "Next":"Complete"
+			 },
+             "Complete":{
+                 "Type":"Pass",
+                 "End":true
+                 }
+            }
+       },
+       "ResultPath":"$",
+       "End":true
+   }
+}
+}
+
+
+
+
+Input:
+{
+"transactions": [
+{
+"transactionId": "R31", 
+"type": "PURCHASE",
+"amount": 1344
+},
+{
+"transactionId": "39",
+"type": "REFUND",
+"amount": 40
+},
+{
+"transactionId": "R31", 
+"type": "REFUND",
+"amount": 12
+},
+{
+"transactionId": "R40", 
+"type": "PURCHASE", 
+"amount": 887
+},
+{
+"transactionId": "R40",
+"type": "PURCHASE",
+"amount": 1220
+}
+]
+}
