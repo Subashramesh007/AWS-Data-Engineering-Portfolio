@@ -1,0 +1,22 @@
+
+{
+"Comment": "A Hello World example of the Amazon States Language using Pass states",
+"StartAt": "Wait 3 seconds",
+"States":{
+   "Wait 3 seconds": {
+   "Type": "Wait",
+   "Seconds": 3,
+   "Next": "Wait Until Hard Coded"
+},
+"Wait Until Hard Coded": {
+   "Type": "Wait",
+   "Timestamp": "2019-05-18T00:00:00Z",
+   "Next": "Dynamic ait"
+},
+   "Dynamic Wait": {
+   "Type": "Wait",	
+   "TimestampPath": "$.waitUntilTimestamp",
+   "End": true
+   }
+ }
+}
